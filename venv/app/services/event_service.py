@@ -4,6 +4,7 @@ from supabase_py import create_client
 from dotenv import load_dotenv
 
 class EventService:
+        ### GET - /events
         def __init__(self):
             load_dotenv()
 
@@ -12,9 +13,10 @@ class EventService:
 
             self.supabase = create_client(supabase_url,supabase_key)
         
+        
         #obtener los eventos si no me equivoco directamente de la respuesta
         #del algoritmo
-        def get_events(self, user_location, date, category):
+        def get_events(user):
             eventos = [
                 Event(
                     id=1,
