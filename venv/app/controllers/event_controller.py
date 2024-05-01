@@ -1,19 +1,22 @@
 from flask import request,jsonify
-from app.services import EventService
+from supabase_client import GetUserID
+from algoritmobueno import recommend_events_for_user
 
 class EventController:
-    def __init__(self):
-        self.event_service = EventService()
+
     ### GET - /events
     def get_events(self, request):
-        jwt_token = request.headers.get('Authorization')
-        if not jwt_token:
-            return jsonify({'error': ' Token JWT no proporcionado'}),401
         
-        user_id = decode_jwt_token(jwt_token)
-        events = self.event_service.get_events(user_id)
+        user_id = GetUserID(request)
+
+        events = recommend_events_for_user(user_id)
+
+         #aplicar filtro de ubicacion
+        
+        #aplicar filtro por horas
+
 
         # Convertimos los objetos Event a diccionarios antes de jsonify
         events_dict = [event.__dict__ for event in events]
         
-        return jsonify(events_dict)  
+        return jsonify(events_dict)     

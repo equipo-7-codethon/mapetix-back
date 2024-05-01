@@ -5,7 +5,7 @@ class Event:
         self.event_name = event_name
         self.coord_x = coord_x
         self.coord_y = coord_y
-        self.description = description
+        self.description = description    
         self.creation_date = creation_date
         self.start_date = start_date
         self.finish_date = finish_date
