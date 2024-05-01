@@ -16,4 +16,4 @@ class EventController:
         # Convertimos los objetos Event a diccionarios antes de jsonify
         events_dict = [event.__dict__ for event in events]
         
-        return jsonify(events_dict)
+        return jsonify(events_dict)  
