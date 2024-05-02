@@ -7,8 +7,8 @@ class SupabaseController:
     def __init__(self):
         load_dotenv()
 
-        supabase_url = os.getenv('SUPABASE_URL')
-        supabase_key = os.getenv('SUPABASE_KEY2')
+        supabase_url = os.getenv('EXPO_PUBLIC_SB_API_REST_URL')
+        supabase_key = os.getenv('EXPO_PUBLIC_SB_API_KEY')
 
         self.supabase_client = create_client(supabase_url, supabase_key)
 

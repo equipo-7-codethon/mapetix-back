@@ -22,5 +22,11 @@ def delete_plan(id):
 def get_plan(id):
     return plan_controller.get_plan(id)
 
+### PUT - /plan/:id
+@app.route('/plan/<int:id>',methods=['PUT'])
+def modify_plan(id):
+    plan_data = request.get_json()
+    return plan_controller.modify_plan(id,plan_data)
+
 if __name__ == '__main__':
     app.run(debug=True)

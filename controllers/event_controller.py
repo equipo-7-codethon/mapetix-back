@@ -1,5 +1,5 @@
 from flask import request,jsonify
-from supabase_controller import SupabaseController
+from controllers.supabase_controller import SupabaseController
 from algoritmobueno import recommend_events_for_user
 
 class EventController:
