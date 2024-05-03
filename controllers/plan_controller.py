@@ -12,6 +12,12 @@ class PlanController:
         supabase = self.supabase_controller.get_supabase_client()
         userjwt_id = self.supabase_controller.GetUserIdFromjwt(jwt_token)
         plans_by_user = supabase.table('plan').select('*').eq('user_id', userjwt_id).execute()
+        plans_json = self.processresponseNoDF(plans_by_user)
+        for plan in plans_json:
+            plan_id = plan['plan_id']
+            plan['events'] = self.get_events_for_plan(plan_id)
+
+        return plans_json    
 
 
     # GET - /plan/:id   Devuelve un plan concreto de un usuario (id = plan_id)
@@ -19,10 +25,13 @@ class PlanController:
         supabase = self.supabase_controller.get_supabase_client()
         #obtener el plan
         plan = supabase.table('plan').select('*').eq('plan_id', id).execute()
-        formatted_plan = self.formatPlan(plan)
+        plan_json = self.processresponseNoDF(plan)
+        plan_id = plan_json['plan_id']
+        plan_json['events'] = self.get_events_for_plan(plan_id)
 
-        return formatted_plan
+        return plan_json
     
+    ##Prueba para funcionamiento , BORRAR LUEGO
     def Prueba(self):
         print(self.get_plan(2))
 
@@ -61,21 +70,24 @@ class PlanController:
             print("Error:", e)
 
 
-    def formatPlan(self,plan):
+    def get_events_for_plan(self, plan_id):
         supabase = self.supabase_controller.get_supabase_client()
-        plan = self.processresponseNoDF(plan)
-        events_ids = supabase.table('plan_event').select('event_id').eq('plan_id',int(plan['plan_id'])).execute()
-        
-        events = [
-            supabase.table('events')
-                .select('*')
-                .eq('id', event_id['id'])
-                .execute()
-            for event_id in events_ids
-        ]
 
-        plan["events"] = self.processresponseNoDF(events)
-        return plan
+        # Obtener los event_ids asociados al plan_id
+        plan_events = supabase.table('plan_event').select('event_id').eq('plan_id', plan_id).execute()
+        plan_events = self.processresponseNoDF(plan_events)
+        event_ids = [plan_event['event_id'] for plan_event in plan_events]
+
+
+        # Obtener los detalles de cada evento
+        formatted_events = []
+        for event_id in event_ids:
+            event_details = supabase.table('event').select('*').eq('id', event_id).execute()
+            formatted_event = self.processresponseNoDF(event_details)
+            if formatted_event:
+                formatted_events.append(formatted_event)
+
+        return formatted_events
 
     def processresponseNoDF(self,response):
         try:

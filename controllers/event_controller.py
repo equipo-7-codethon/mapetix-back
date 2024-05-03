@@ -17,7 +17,7 @@ class EventController:
 
         events = recommend_events_for_user(user_id)
 
-         #aplicar filtro de ubicacion
+        #aplicar filtro de ubicacion
         
         #aplicar filtro por horas
 
