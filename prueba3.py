@@ -23,12 +23,12 @@ print(session)
 
 
 # Validas el token JWT
-decoded_token = is_valid_token(session)
-print(decoded_token)
+#decoded_token = is_valid_token(session)
+#print(decoded_token)
 
 user_id = plan_contr.get_plans_by_user(session)
 print(user_id)
-def2 = supabase_controller.SignOut()
+#def2 = supabase_controller.SignOut()
 
 
 

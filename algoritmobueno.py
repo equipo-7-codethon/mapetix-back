@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 # Configuración de Supabase
 url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
+key: str = os.environ.get("SUPABASE_KEY2")
 supabase : Client = create_client(url, key)
 
 def get_events():
