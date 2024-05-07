@@ -30,6 +30,10 @@ class PlanController:
         return plan_json
 
     # POST - /plan      Crea un plan para un usario (JWT)
+    def create_plan(self,jwt_token):
+        supabase = self.supabase_controller.get_supabase_client()
+
+
 
 
     ### PUT - /plan/:id   Modifica el plan de un usuario (id = plan_id)

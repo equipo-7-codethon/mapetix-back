@@ -11,12 +11,13 @@ class EventController:
         events = recommend_events_for_user(user_id)
 
         #aplicar filtro por horas
+        
 
         #aplicar filtro de ubicacion
         events_ubicado = self.ordenarEventosDistancia(events,ubicacion)
 
         # Convertimos los objetos Event a diccionarios antes de jsonify
-        events_dict = [event.__dict__ for event in events]
+        events_dict = [event.__dict__ for event in events_ubicado]
         
         return jsonify(events_dict)
 
