@@ -1,10 +1,14 @@
 from flask import request,jsonify
 from controllers.supabase_controller import SupabaseController
+from controllers.event_controller import EventController
+from datetime import datetime
+from algoritmobueno import recommend_events_for_user
 import json
 
 class PlanController:
     def __init__(self):
         self.supabase_controller = SupabaseController()
+        self.event_controller = EventController()
 
     # GET - /plans      Obtiene los planes ya hecho por el usuario (JWT)
     def get_plans_by_user(self, jwt_token):
@@ -30,8 +34,24 @@ class PlanController:
         return plan_json
 
     # POST - /plan      Crea un plan para un usario (JWT)
-    def create_plan(self,jwt_token):
+    def create_plan(self,jwt_token,ubicacion,max_distance):
         supabase = self.supabase_controller.get_supabase_client()
+
+        #obtener los eventos para el usuario
+        events = recommend_events_for_user(jwt_token)
+        #filtrar los eventos segun el radio pasado por el front
+        events_radio = self.filtrarEventosPorDistancia(events, ubicacion, max_distance)
+        #obtener el numero de eventos que establezcamos para cada plan
+        events = events_radio[:5]
+        #crear un objeto plan en supabase y meter los eventos en plan_event
+        events = sorted(events, key=lambda x: x['start_date'])
+        start_date = events[0]['start_date']
+        finish_date = events[-1]['finish_date']
+        current_time = datetime.now()
+        horario = finish_date - start_date
+
+
+
 
 
 
@@ -100,4 +120,13 @@ class PlanController:
             print("Error:", e)
             return None
 
+    def filtrarEventosPorDistancia(self, events, ubicacion, max_distance):
+        # Extraer latitud y longitud de la ubicación del usuario
+        try:
+            lat, lon = map(float, ubicacion.split(','))
+        except ValueError:
+            return jsonify({'error': 'Invalid user location format'}), 400
+
+        eventos_filtrados = [event for event in events if self.event_controller.haversine_distance(lat, lon, event['coord_y'], event['coord_x']) <= max_distance]
+        return eventos_filtrados
         
