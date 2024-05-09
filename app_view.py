@@ -67,8 +67,13 @@ class AppViews:
     def create_plan():
         jwt_token = request.headers.get('Authorization')
         userjwt_id = supabase_controller.GetUserIdFromjwt(jwt_token)
+        #obtener los parametros necesarios desde la url
+        user_location = request.args.get('userLocation', None)
+        max_distance = request.args.get('maxDistance', None)  # Asume que este parámetro podría estar en la URL
+        target_date = request.args.get('date', None)
+        max_price = request.args.get('maxPrice', None)
         if userjwt_id:
-            response = plan_controller.create_plan(userjwt_id)
+            response = plan_controller.create_plan(userjwt_id,user_location,max_distance,target_date,max_price)
             return jsonify(response)
         return jsonify({'error': 'Usuario no válido'}), 401
 
