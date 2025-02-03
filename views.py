@@ -50,9 +50,17 @@ class PlanView:
         jwt_token = request.headers.get('Authorization')
         userjwt_id = supabase_controller.GetUserIdFromjwt(jwt_token)
         if userjwt_id:
+            price = request.args.get('price', type=float)
+            valoration = request.args.get('valoration', type=float)
+            category = request.args.get('category', type=int)
             target_date = datetime.today().strftime('%Y-%m-%d')
             allevents = plan_controller.filter_events_by_date(target_date)
-            return jsonify(allevents)
+            allevents_2 = plan_controller.filter_events_all(allevents, price, valoration, category)
+            contador = 0
+            for event in allevents_2:
+                contador +=1
+            print(contador)
+            return jsonify(allevents_2)
         else:
             # Si el ID de usuario no existe, devolver un mensaje de error
             return jsonify({'error': 'Usuario no autorizado'}), 401
@@ -61,17 +69,26 @@ class PlanView:
     @plan_view.route('/plan/rate/<int:id>',methods=['POST'])
     @require_authentication
     def rate_event(id):
-        jwt_token = request.headers.get('Authorization')
-        userjwt_id = supabase_controller.GetUserIdFromjwt(jwt_token)
-        if userjwt_id:
-            nota = request.args.get('Nota')
-            description_val = request.args.get('Description')
-            plan =  plan_controller.valorate_event(id,userjwt_id,nota,description_val)
-            return jsonify(plan)
-        else:
-            # Si el ID de usuario no existe, devolver un mensaje de error
-            return jsonify({'error': 'Usuario no autorizado'}), 401
-    
+        try:
+            jwt_token = request.headers.get('Authorization')
+            userjwt_id = supabase_controller.GetUserIdFromjwt(jwt_token)
+            if userjwt_id:
+
+                data = request.get_json()
+                if not data:
+                    return jsonify({'error': 'Datos no enviados'}), 400
+
+                nota = data.get('Nota')
+                description_val = data.get('Description')
+
+                plan =  plan_controller.valorate_event(id,userjwt_id,nota,description_val)
+                return jsonify(plan)
+            else:
+                # Si el ID de usuario no existe, devolver un mensaje de error
+                return jsonify({'error': 'Usuario no autorizado'}), 401
+        except Exception as e:
+            # Manejar la excepción y devolver un mensaje de error adecuado
+            print(jsonify({'error': str(e)}))
 
     @plan_view.route('/plan',methods=['POST'])
     @require_authentication
@@ -109,6 +126,21 @@ class PlanView:
         #    return jsonify({'error':'No user location provided'}),400
         if userjwt_id:
             event =  plan_controller.get_event_by_id(id)
+            print("hola")
+            return jsonify(event)
+        else:
+            # Si el ID de usuario no existe, devolver un mensaje de error
+            return jsonify({'error': 'Usuario no autorizado'}), 401
+        
+
+    @plan_view.route('/event/rate/<int:id>',methods=['GET'])
+    @require_authentication
+    def get_event_rate(id):
+        jwt_token = request.headers.get('Authorization')
+        userjwt_id = supabase_controller.GetUserIdFromjwt(jwt_token)
+
+        if userjwt_id:
+            event =  plan_controller.get_event_user_rated(id, userjwt_id)
             return jsonify(event)
         else:
             # Si el ID de usuario no existe, devolver un mensaje de error
