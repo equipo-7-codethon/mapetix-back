@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 from supabase import create_client
 from dotenv import load_dotenv
+import unicodedata
 
 class Scrap:
     def __init__(self):
@@ -37,6 +38,34 @@ class Scrap:
         supabase = self.get_supabase_client()
         events = supabase.table('event').select('event_name').execute()
         return events
+    
+    def normalizar_texto(self, texto):
+        if not texto:
+            return ''
+        # Eliminar tildes usando unicodedata
+        texto_sin_tildes = ''.join(
+            c for c in unicodedata.normalize('NFD', texto)
+            if unicodedata.category(c) != 'Mn'
+        )
+        return texto_sin_tildes.lower()
+    
+    
+    def set_category(self,category):
+        category = self.normalizar_texto(category)
+        if any(x in category for x in ["exposicion"]):
+            return 1
+        elif any(x in category for x in ["gastronomia"]):
+            return 2
+        elif any(x in category for x in ["musica"]):
+            return 3
+        elif any(x in category for x in ["deporte"]):
+            return 4
+        elif any(x in category for x in ["festivo", "fiesta"]):
+            return 5
+        elif any(x in category for x in ["familia"]):
+            return 6
+        else:
+            return 7
 
     def processresponseNoDF(self,response):
         try:
@@ -254,6 +283,8 @@ class Scrap:
                         evento['coord_x'] = None
                         evento['coord_y'] = None
 
+                    category_id = self.set_category(nombre_categoria)
+
                     evento['event_name'] = titulo
                     evento['start_date'] = fecha_inicio_formateada
                     evento['finish_date'] = fecha_fin_formateada
@@ -263,6 +294,7 @@ class Scrap:
                     evento['cp_event'] = codigo_postal
                     evento['price'] = precio
                     evento['horario'] = horarios_texto
+                    evento['category_id'] = category_id
 
                     supabase.table('event').insert(evento).execute()
 
