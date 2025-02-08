@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import json
 import pandas as pd
 from datetime import datetime
+import unicodedata
 
 class SupabaseController:
 
@@ -96,6 +97,8 @@ class SupabaseController:
         plans = supabase.table('valoration_event').select('*').execute()
         return plans
     
+    
+    
     def processresponseNoDF(self,response):
         try:
             # Obtener los datos en formato JSON utilizando el método model_dump_json()
@@ -146,3 +149,12 @@ class SupabaseController:
             #print("Error:", e)
             return None
 
+    def normalizar_texto(self, texto):
+        if not texto:
+            return ''
+        # Eliminar tildes usando unicodedata
+        texto_sin_tildes = ''.join(
+            c for c in unicodedata.normalize('NFD', texto)
+            if unicodedata.category(c) != 'Mn'
+        )
+        return texto_sin_tildes.lower()
