@@ -54,13 +54,13 @@ class PlanView:
             valoration = request.args.get('valoration', type=float)
             category = request.args.get('category', type=int)
             target_date = datetime.today().strftime('%Y-%m-%d')
-            allevents = plan_controller.filter_events_by_date(target_date)
-            allevents_2 = plan_controller.filter_events_all(allevents, price, valoration, category)
+            allevents = plan_controller.filter_events_by_date(target_date, price, valoration, category)
+            #allevents_2 = plan_controller.filter_events_all(allevents, price, valoration, category)
             contador = 0
-            for event in allevents_2:
+            for event in allevents:
                 contador +=1
             print(contador)
-            return jsonify(allevents_2)
+            return jsonify(allevents)
         else:
             # Si el ID de usuario no existe, devolver un mensaje de error
             return jsonify({'error': 'Usuario no autorizado'}), 401
@@ -152,6 +152,17 @@ class PlanView:
         try:
             scrap_controller.hacerscrap()
             return jsonify({'mensaje': 'El scrap ejecutó correctamente.'}), 200
+        except Exception as e:
+            # Manejar la excepción y devolver un mensaje de error adecuado
+            return jsonify({'error': str(e)}), 500
+        
+
+    @plan_view.route('/event/categories',methods=['GET'])
+    @require_authentication
+    def get_categories():
+        try:
+            categories = plan_controller.get_categories()
+            return jsonify(categories)
         except Exception as e:
             # Manejar la excepción y devolver un mensaje de error adecuado
             return jsonify({'error': str(e)}), 500
