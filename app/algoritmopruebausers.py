@@ -1,5 +1,5 @@
 import pandas as pd
-from controllers.supabase_controller import SupabaseController
+from app.controllers.supabase_controller import SupabaseController
 import pandas as pd
 import numpy as np
 

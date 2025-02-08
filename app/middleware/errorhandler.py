@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from exceptions import APIException
+from app.middleware.exceptions import APIException
 
 
 class ErrorHandler:

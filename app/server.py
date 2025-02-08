@@ -1,6 +1,6 @@
 from flask import Flask
-from errorhandler import ErrorHandler
-from router import Router
+from app.middleware.errorhandler import ErrorHandler
+from app.router import Router
 
 app = Flask(__name__)
 Router(app)
