@@ -3,7 +3,7 @@ import jwt
 
 from flask import request
 
-from exceptions import APIException
+from app.middleware.exceptions import APIException
 
 
 class AuthMiddleware:

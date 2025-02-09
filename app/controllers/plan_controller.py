@@ -1,8 +1,8 @@
 from flask import request,jsonify
-from controllers.supabase_controller import SupabaseController
+from app.controllers.supabase_controller import SupabaseController
 import json
 from datetime import datetime
-from algoritmopruebausers import Algoritmo
+from app.algoritmopruebausers import Algoritmo
 from geopy.distance import geodesic
 import random
 
@@ -222,20 +222,73 @@ class PlanController:
                         #break  # Salir del bucle interno una vez que se encuentra el evento
         return filtered_events
     
-    def filter_events_by_date(self,target_date):
+    def filter_events_by_date(self,target_date, price=None, valoration=None, category_id=None):
         events = self.supabase_controller.get_events()
         events = self.supabase_controller.processresponseNoDF(events)
         filtered_events = []
+
         for event in events:
             start_date = event['start_date']
             finish_date = event['finish_date']
-            #print(f"Checking event {event_id}:")
-            if start_date <= target_date <= finish_date:
-                evento_id = event['id']
-                event['valoration'] = self.event_score(evento_id)
-                filtered_events.append(event)
+            coord_x = event['coord_x']
+            coord_y = event['coord_y']
+
+            if not coord_x or not coord_y:
+                continue
+
+            if not (start_date <= target_date <= finish_date):
+                continue
+
+            if price is not None and event.get('price') is None:
+                continue
+
+            if price is not None and event.get('price') > price:
+                continue
+
+            if category_id is not None and event.get('category_id') != category_id:
+                continue
+
+            evento_id = event['id']
+            event['valoration'] = self.event_score(evento_id)
+
+            if valoration is not None and event.get('valoration') is None:
+                continue
+
+            if valoration is not None and event.get('valoration') < valoration:
+                continue
+
+            filtered_events.append(event)
+
         return filtered_events
     
+    def filter_events_all(self, events, price=None, valoration=None, category_id=None):
+        filtered_events = []
+
+        for event in events:
+            # Obtener valores
+            event_price = event.get('price')
+            event_valoration = event.get('valoration')
+            event_category = event.get('category_id')
+
+            if price is not None and event_price is None:
+                continue
+            if valoration is not None and event_valoration is None:
+                continue
+            if category_id is not None and event_category is None:
+                continue
+
+            if price is not None and event_price > price:
+                continue
+            if valoration is not None and event_valoration < valoration:
+                continue
+            if category_id is not None and event_category != category_id:
+                continue
+
+            # Agregar evento si pasó todos los filtros
+            filtered_events.append(event)
+
+        return filtered_events
+  
 
     def filter_events_by_distance(self,events, user_location, max_distance_km):
         filtered_events = []
@@ -257,7 +310,6 @@ class PlanController:
         
         return distancia
     
-    #obtiene la valoracion de un evento calculando la media de sus valoraciones por los usuarios
     def event_score(self,event_id):
         supabase = self.supabase_controller.get_supabase_client()
         valoraciones = supabase.table('valoration_event').select('*').eq('event_id', event_id).execute()
@@ -320,4 +372,14 @@ class PlanController:
         ]
         return random.choice(titulos)
     
+    def get_event_user_rated(self,event_id,userjwt_id):
+        supabase = self.supabase_controller.get_supabase_client()
+        event = supabase.table('valoration_event').select('*').eq('event_id', event_id).eq('auth_user_id', userjwt_id).execute()
+        event = self.supabase_controller.processresponseNoDF(event)
+        return event
         
+    def get_categories(self):
+        supabase = self.supabase_controller.get_supabase_client()
+        categories = supabase.table('event_category').select('*').execute()
+        categories = self.supabase_controller.processresponseNoDF(categories)
+        return categories
