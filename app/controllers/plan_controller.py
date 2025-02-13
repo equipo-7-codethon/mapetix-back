@@ -5,11 +5,13 @@ from datetime import datetime
 from app.algoritmopruebausers import Algoritmo
 from geopy.distance import geodesic
 import random
+from app.controllers.gemini_controller import GeminiController
 
 class PlanController:
     def __init__(self):
         self.supabase_controller = SupabaseController()
         self.algoritmo_controller = Algoritmo()
+        self.gemini_controller = GeminiController()
 
     # GET - /plans      Obtiene los planes ya hecho por el usuario con sus eventos(JWT)
     def get_plans_by_user(self, userjwt_id):
@@ -75,8 +77,14 @@ class PlanController:
         # Extrae las direcciones de inicio y fin
         start_direction = treseventos[0]['direccion_event'] if treseventos else None
         finish_direction = treseventos[-1]['direccion_event'] if treseventos else None
+
+        try:
+            plan_title = self.gemini_controller.get_plan_title(treseventos[0]['event_name'], treseventos[1]['event_name'], treseventos[2]['event_name'])
+        except Exception as e:
+            plan_title = self.generar_titulo_plan()
+
         plan = {
-            'description' : self.generar_titulo_plan(),
+            'description' : plan_title,
             'created_at': created_at,
             'start_date': target_date,
             'finish_date': target_date,
