@@ -44,7 +44,6 @@ class SupabaseController:
         try:
             supabase = self.get_supabase_client()
             userjwt = supabase.auth.get_user(jwt_token)
-            #print(userjwt)
             if userjwt:
                 id_usuario = userjwt.user.id
                 return id_usuario
@@ -52,8 +51,21 @@ class SupabaseController:
                 return None
             
         except Exception as e:
-            #print(f"Error al obtener el ID de usuario del token JWT: {str(e)}")
             return None
+        
+    def GetUserEmailFromjwt(self,jwt_token):
+        try:
+            supabase = self.get_supabase_client()
+            userjwt = supabase.auth.get_user(jwt_token)
+            if userjwt:
+                user_email = userjwt.user.email
+                return user_email
+            else:
+                return None
+            
+        except Exception as e:
+            return None
+        
 
     def Prueba(self):
         supabase = self.get_supabase_client()
