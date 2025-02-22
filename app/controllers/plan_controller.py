@@ -2,7 +2,7 @@ from flask import request,jsonify
 from app.controllers.supabase_controller import SupabaseController
 import json
 from datetime import datetime
-from app.algoritmopruebausers import Algoritmo
+from app.recommendationalgorithm import Algoritmo
 from geopy.distance import geodesic
 import random
 from app.controllers.gemini_controller import GeminiController
