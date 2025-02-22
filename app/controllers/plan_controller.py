@@ -24,6 +24,8 @@ class PlanController:
         return plans_json    
 
      # GET - /plan/:id   Devuelve un plan concreto de un usuario con sus eventos (id = plan_id)
+    
+    
     def get_plan(self,id,userLocation):
         supabase = self.supabase_controller.get_supabase_client()
         #obtener el plan
@@ -51,13 +53,11 @@ class PlanController:
             events = self.algoritmo_controller.recommend_events_for_user(userid)
         else:
             events = self.random_events()
+
         allevents = self.supabase_controller.get_events()
         allevents = self.processresponseNoDF(allevents)
         events_valored = self.get_events_by_user(userid)
-        #print(events_valored)
         events = self.filter_events_by_criteria(events,allevents,target_date,max_price,events_valored)
-        #print(events)
-        #filtrar los eventos segun el radio pasado por el front
         events = self.filter_events_by_distance(events, ubicacion, max_distance)
         eventos2 =[]
         for event in events:
