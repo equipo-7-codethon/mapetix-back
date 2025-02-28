@@ -7,7 +7,13 @@ from flask_socketio import SocketIO
 from app.middleware.auth_middleware import require_authentication
 from app.routes.chatview import ChatView
 from app.routes.user import UserView
+from app.routes.notification import NotificationView
+from app.services.notification_service import NotificationService
+from app.controllers.notification_controller import NotificationController
 
+notification_controller = NotificationController()
+notification_service = NotificationService(notification_controller)
+notification_view = NotificationView(notification_service)
 
 class Router:
     def __init__(self, app):
@@ -19,7 +25,7 @@ class Router:
         scrap_bp = Blueprint('scrap', __name__ )
         chat_bp = Blueprint('chat', __name__)
         user_bp = Blueprint('user', __name__)
-
+        notification_bp = Blueprint('notification', __name__)
 
         plan_bp.add_url_rule('/plans', view_func=require_authentication(PlanView.get_plans), methods=['GET'], endpoint='get_plans_by_user')
         plan_bp.add_url_rule('/plan/<int:id>', view_func=require_authentication(PlanView.get_plan), methods=['GET'], endpoint='get_plan_by_id')
@@ -38,11 +44,17 @@ class Router:
 
         user_bp.add_url_rule('/user/email', view_func=require_authentication(UserView.get_user_email_from_jwt), methods=['GET'], endpoint='get_user_email_from_jwt')
 
+        notification_bp.add_url_rule('/notification/subscribe', view_func=require_authentication(notification_view.subscribe_category), methods=['POST'], endpoint='subscribe_category')
+        notification_bp.add_url_rule('/notification/unsubscribe', view_func=require_authentication(notification_view.unsubscribe_category), methods=['DELETE'], endpoint='unsubscribe_category')
+        notification_bp.add_url_rule('/notification/subscribed', view_func=require_authentication(notification_view.get_subscribed_categories), methods=['GET'], endpoint='get_subscribed_categories')   
+        notification_bp.add_url_rule('/notification/token', view_func=require_authentication(notification_view.insert_notification_token), methods=['POST'], endpoint='insert_notification_token') 
+
 
         self.app.register_blueprint(plan_bp)
         self.app.register_blueprint(events_bp)
         self.app.register_blueprint(scrap_bp)
         self.app.register_blueprint(chat_bp)
         self.app.register_blueprint(user_bp)
+        self.app.register_blueprint(notification_bp)
 
         self.socketio.on_namespace(ChatNamespace('/chat'))
