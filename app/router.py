@@ -2,7 +2,7 @@ from flask import Blueprint
 from app.routes.plans import  PlanView
 from app.routes.events import EventView
 from app.routes.scrap import ScrapView
-from app.routes.chat import ChatNamespace  # Importamos el chat
+from app.routes.chat import ChatNamespace
 from flask_socketio import SocketIO
 from app.middleware.auth_middleware import require_authentication
 from app.routes.chatview import ChatView

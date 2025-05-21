@@ -4,6 +4,7 @@ from app.middleware.errorhandler import ErrorHandler
 from app.router import Router
 
 app = Flask(__name__)
+app.config['TESTING'] = True
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 Router(app)
