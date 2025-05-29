@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from app.scrapbucket2 import Scrap
+from app.eventscrap import Scrap
 
 scrap_controller = Scrap()
 
